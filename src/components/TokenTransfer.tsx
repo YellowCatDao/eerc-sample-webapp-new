@@ -4,7 +4,7 @@ import {useEERCContext} from '../context/EERCContext'
 import {formatBalance, getExplorerUrl} from '../lib/utils'
 
 export default function TokenTransfer() {
-    const {isConnected, chain, eerc, encryptedBalance} = useEERCContext()
+    const {isConnected, chainId, eerc, encryptedBalance} = useEERCContext()
     const [recipient, setRecipient] = useState('')
     const [amount, setAmount] = useState('')
     const [isProcessing, setIsProcessing] = useState(false)
@@ -15,7 +15,7 @@ export default function TokenTransfer() {
         isRegistered: null
     })
 
-    const isMainnet = chain?.id === 43114 // Avalanche mainnet chain ID
+    const isMainnet = chainId === 43114 // Avalanche mainnet chain ID
 
     const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         // Allow only numbers and decimal point

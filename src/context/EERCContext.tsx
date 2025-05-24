@@ -1,5 +1,5 @@
 import {createContext, ReactNode, useContext, useMemo} from 'react'
-import {type Chain, useAccount, useNetwork, usePublicClient, useWalletClient} from 'wagmi'
+import {useAccount, useChainId, usePublicClient, useWalletClient} from 'wagmi'
 import {
   MAINNET_EERC_ADDRESS,
   MAINNET_REGISTRAR_ADDRESS,
@@ -8,12 +8,12 @@ import {
   TESTNET_REGISTRAR_ADDRESS,
   TESTNET_TOKEN_ADDRESS
 } from '../constants/contracts'
-import {useEERC} from '@avalabs/ac-eerc-sdk'
+import {useEERC} from '@avalabs/eerc-sdk-next'
 import {circuitURLs, wasmURLs} from '../config/zkFiles'
 
 interface EERCContextType {
     isConnected: boolean
-    chain: Chain | undefined
+    chainId: number | undefined
     network: 'mainnet' | 'testnet'
     contractAddress: `0x${string}`
     tokenAddress: string
@@ -26,7 +26,7 @@ interface EERCContextType {
 
 const EERCContext = createContext<EERCContextType>({
     isConnected: false,
-    chain: undefined,
+    chainId: undefined,
     network: 'testnet',
     contractAddress: '0x0000000000000000000000000000000000000000',
     tokenAddress: '',
@@ -42,7 +42,7 @@ interface EERCProviderProps {
 
 export function EERCProvider({children, network}: EERCProviderProps) {
     const {isConnected} = useAccount()
-    const {chain} = useNetwork()
+    const chainId = useChainId()
     const publicClient = usePublicClient()
     const {data: walletClient} = useWalletClient()
 
@@ -53,14 +53,17 @@ export function EERCProvider({children, network}: EERCProviderProps) {
 
     // Always call useEERC to preserve hook order, but provide proper parameters
     const eerc = useEERC(
-        publicClient,
-        walletClient as any, // Cast to any to avoid TS errors
+        publicClient as any,
+        walletClient as any,
         contractAddress,
         wasmURLs,
-        circuitURLs
     );
 
     // Log debug info
+    // Use the encryptedBalance hook directly - this will continue to work
+    // even when wallet isn't connected (though it will return meaningless data)
+    const encryptedBalance = eerc.useEncryptedBalance(tokenAddress);
+
     console.log("EERC Context Debug:", {
         initialized: eerc?.isInitialized,
         isConverter: eerc?.isConverter,
@@ -74,14 +77,11 @@ export function EERCProvider({children, network}: EERCProviderProps) {
         circuitURLs: circuitURLs ? Object.keys(circuitURLs) : null
     });
 
-    // Use the encryptedBalance hook directly - this will continue to work
-    // even when wallet isn't connected (though it will return meaningless data)
-    const encryptedBalance = eerc?.useEncryptedBalance ? eerc.useEncryptedBalance(tokenAddress) : null;
 
     // Create the context value
     const value = useMemo(() => ({
         isConnected,
-        chain,
+        chainId,
         network,
         contractAddress,
         tokenAddress,
@@ -92,7 +92,7 @@ export function EERCProvider({children, network}: EERCProviderProps) {
         encryptedBalance
     }), [
         isConnected,
-        chain,
+        chainId,
         network,
         contractAddress,
         tokenAddress,

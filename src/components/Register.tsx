@@ -3,14 +3,14 @@ import {useEERCContext} from '../context/EERCContext'
 import {getExplorerUrl} from '../lib/utils'
 
 export default function Register() {
-    const {isConnected, chain, eerc} = useEERCContext()
+    const {isConnected, chainId, eerc} = useEERCContext()
     const [isRegistering, setIsRegistering] = useState(false)
     const [isGeneratingKey, setIsGeneratingKey] = useState(false)
     const [txHash, setTxHash] = useState<string | null>(null)
     const [error, setError] = useState<string | null>(null)
     const [generatedKey, setGeneratedKey] = useState<string | null>(null)
 
-    const isMainnet = chain?.id === 43114 // Avalanche mainnet chain ID
+    const isMainnet = chainId === 43114 // Avalanche mainnet chain ID
 
     const handleRegister = async () => {
         if (!eerc) return

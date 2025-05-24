@@ -2,14 +2,15 @@ import {useEffect, useRef, useState} from 'react'
 import {formatEther, parseEther} from 'viem'
 import {useEERCContext} from '../context/EERCContext'
 import {formatBalance, getExplorerUrl} from '../lib/utils'
-import {erc20ABI, useAccount, useBalance, useContractWrite} from 'wagmi'
+import {useAccount, useBalance, useWriteContract} from 'wagmi'
+import {erc20Abi} from 'viem'
 import {TokenBatcher} from '../lib/batchReadCalls'
 import {standardWatchOptions} from '../lib/wagmiConfig'
 
 type OperationType = 'deposit' | 'withdraw'
 
 export default function TokenOperations() {
-    const {isConnected, chain, tokenAddress, eerc, encryptedBalance, contractAddress, publicClient} = useEERCContext()
+    const {isConnected, chainId, tokenAddress, eerc, encryptedBalance, contractAddress, publicClient} = useEERCContext()
     const {address} = useAccount()
     const [amount, setAmount] = useState('')
     const [operationType, setOperationType] = useState<OperationType>('deposit')
@@ -24,16 +25,14 @@ export default function TokenOperations() {
         address,
         token: tokenAddress as `0x${string}`,
         ...standardWatchOptions,
-        enabled: !!address && !!tokenAddress
+        query: {
+            enabled: !!address && !!tokenAddress
+        }
     })
 
-    const isMainnet = chain?.id === 43114 // Avalanche mainnet chain ID
+    const isMainnet = chainId === 43114 // Avalanche mainnet chain ID
 
-    const {writeAsync: approveTokens} = useContractWrite({
-        address: tokenAddress as `0x${string}`,
-        abi: erc20ABI,
-        functionName: 'approve'
-    })
+    const {writeContractAsync: approveTokens} = useWriteContract()
 
     // Create a TokenBatcher instance for efficient RPC calls
     const batcherRef = useRef<TokenBatcher | null>(null)
@@ -102,10 +101,13 @@ export default function TokenOperations() {
             const amountInWei = parseEther(amount)
 
             const result = await approveTokens({
+                address: tokenAddress as `0x${string}`,
+                abi: erc20Abi,
+                functionName: 'approve',
                 args: [contractAddress, amountInWei],
             })
 
-            setTxHash(result.hash)
+            setTxHash(result)
 
             // Wait for approval to be confirmed then update the approved amount
             setTimeout(async () => {

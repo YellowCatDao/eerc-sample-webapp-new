@@ -1,10 +1,11 @@
-import {createConfig, WagmiConfig as WagmiConfigProvider} from 'wagmi'
+import {createConfig, WagmiProvider} from 'wagmi'
 import {ConnectKitProvider, getDefaultConfig} from 'connectkit'
 import {avalanche, avalancheFuji} from 'wagmi/chains'
 import {ReactNode} from 'react'
+import {QueryClient, QueryClientProvider} from '@tanstack/react-query'
 
 // Define the chains we want to support
-const chains = [avalanche, avalancheFuji]
+const chains = [avalanche, avalancheFuji] as const
 
 // Create the wagmi config
 const config = createConfig(
@@ -21,12 +22,16 @@ interface WagmiConfigProps {
     children: ReactNode
 }
 
+const queryClient = new QueryClient()
+
 export function WagmiConfig({children}: WagmiConfigProps) {
     return (
-        <WagmiConfigProvider config={config}>
-            <ConnectKitProvider mode="dark">
-                {children}
-            </ConnectKitProvider>
-        </WagmiConfigProvider>
+        <WagmiProvider config={config}>
+            <QueryClientProvider client={queryClient}>
+                <ConnectKitProvider mode="dark">
+                    {children}
+                </ConnectKitProvider>
+            </QueryClientProvider>
+        </WagmiProvider>
     )
 }

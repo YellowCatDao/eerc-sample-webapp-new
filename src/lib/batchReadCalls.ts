@@ -1,5 +1,4 @@
-import {type PublicClient} from 'viem'
-import {erc20ABI} from 'wagmi'
+import {type PublicClient, erc20Abi} from 'viem'
 
 /**
  * Batching class for token operations
@@ -66,7 +65,7 @@ export class TokenBatcher {
         try {
             const allowance = await this.client.readContract({
                 address: this.tokenAddress,
-                abi: erc20ABI,
+                abi: erc20Abi,
                 functionName: 'allowance',
                 args: [this.userAddress, this.contractAddress],
             }) as bigint;
@@ -102,7 +101,7 @@ export class TokenBatcher {
         try {
             const balance = await this.client.readContract({
                 address: this.tokenAddress,
-                abi: erc20ABI,
+                abi: erc20Abi,
                 functionName: 'balanceOf',
                 args: [this.userAddress],
             }) as bigint;
