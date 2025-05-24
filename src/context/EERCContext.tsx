@@ -8,7 +8,7 @@ import {
   TESTNET_REGISTRAR_ADDRESS,
   TESTNET_TOKEN_ADDRESS
 } from '../constants/contracts'
-import {useEERC} from '@avalabs/eerc-sdk-next'
+import {useEERC} from '@avalabs/eerc-sdk'
 import {circuitURLs, wasmURLs} from '../config/zkFiles'
 
 interface EERCContextType {
@@ -56,7 +56,7 @@ export function EERCProvider({children, network}: EERCProviderProps) {
         publicClient as any,
         walletClient as any,
         contractAddress,
-        wasmURLs,
+        circuitURLs,
     );
 
     // Log debug info
@@ -74,7 +74,7 @@ export function EERCProvider({children, network}: EERCProviderProps) {
         hasEncryptedBalanceHook: !!eerc?.useEncryptedBalance,
         eerc: eerc ? Object.keys(eerc) : null,
         wasmURLs: wasmURLs,
-        circuitURLs: circuitURLs ? Object.keys(circuitURLs) : null
+        circuitURLs: circuitURLs,
     });
 
 
