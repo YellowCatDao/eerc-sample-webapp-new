@@ -1,3 +1,8 @@
+# IMPORTANT
+
+This version of the app uses https://www.npmjs.com/package/@avalabs/eerc-sdk-next but that package is out of date.
+When using it with the latest ZK files and/or contracts, it seems like you can hardlock your account FOREVER. 
+
 # EERC Token Web Application
 
 A modern React-based web application for interacting with Encrypted ERC20 (EERC) tokens on the Avalanche blockchain.
